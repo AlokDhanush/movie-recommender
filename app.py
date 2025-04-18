@@ -7,8 +7,7 @@ import os
 import gdown
 import time
 
-load_dotenv()  
-API_KEY = os.getenv("TMDB_API_KEY")
+API_KEY = st.secrets["TMDB_API_KEY"]
 
 def fetch_poster(movie_id, retries=3, delay=1):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
