@@ -9,26 +9,25 @@ import time
 
 API_KEY = st.secrets["TMDB_API_KEY"]
 
-def fetch_poster(movie_id, retries=3, delay=1):
-    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
-    headers = {
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0"
-    }
-
-    for attempt in range(retries):
-        try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()  
-            data = response.json()
-            return "http://image.tmdb.org/t/p/w500/" + data.get('poster_path', '')
-        except (requests.exceptions.RequestException, KeyError) as e:
-            if attempt < retries - 1:
-                time.sleep(delay)
-            else:
-                st.warning(f"Could not load poster for movie ID {movie_id}. Showing placeholder.")
-                return "https://via.placeholder.com/200x300?text=No+Poster"
-
+def fetch_poster(movie_id):
+    try:
+        response = requests.get(
+            f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US",
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+        poster_path = data.get('poster_path')
+        if poster_path:
+            poster_url = f"https://image.tmdb.org/t/p/w500/{poster_path}"
+            return poster_url
+        else:
+            st.warning(f"No poster found for movie ID {movie_id}")
+            return "https://via.placeholder.com/300x450?text=No+Image"
+    except Exception as e:
+        st.error(f"Failed to fetch poster for movie ID {movie_id}: {e}")
+        return "https://via.placeholder.com/300x450?text=Error"
+        
 def recommend(movie):
     movie_index = movies_dict[movies_dict['title'] == movie].index[0]
     distances = similarity[movie_index] 
