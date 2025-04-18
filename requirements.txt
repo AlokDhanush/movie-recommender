@@ -1,0 +1,6 @@
+streamlit
+gdown
+requests 
+pandas
+dotenv 
+os
